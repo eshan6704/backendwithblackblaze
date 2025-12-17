@@ -1,223 +1,757 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Stock / Index App</title>
-<style>
-html, body {
-    height: 100%; margin:0; font-family: Arial, sans-serif; background:#f5f5f5; color:#333;
-    display: flex; flex-direction: column;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4a6bff;
+      --secondary-color: #f8f9ff;
+      --text-color: #1a1a1a;
+      --text-secondary: #6c757d;
+      --bg-color: #f8f9ff;
+      --dark-bg: #0f1419;
+      --dark-secondary: #161b22;
+      --dark-text: #e6edf3;
+      --accent-color: #ff6b6b;
+      --success-color: #51cf66;
+      --warning-color: #ffd43b;
+      --border-radius: 16px;
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --gradient-primary: linear-gradient(135deg, #4a6bff 0%, #6a4aff 100%);
+      --gradient-secondary: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    }
 
-/* Top Bar */
-.top-bar {
-    display: flex; align-items: center; background:#222; color:white; padding:6px 10px;
-    gap:6px; flex-wrap:wrap; position:sticky; top:0; z-index:1000;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
 
-.top-bar input, .top-bar select, .top-bar button {
-    height:32px; padding:0 8px; border-radius:4px; border:none; font-size:12px; cursor:pointer;
-    display:flex; align-items:center; /* vertical center */
-}
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow: hidden;
+      background-image: radial-gradient(circle at 25px 25px, #4a6bff 2%, transparent 0%);
+      background-size: 50px 50px;
+    }
 
-.top-bar input[type="text"], .top-bar input[type="date"], .top-bar select {
-    border:1px solid #ccc; border-radius:4px;
-}
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      color: var(--text-color);
+      padding: 4px 8px;
+      gap: 4px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: var(--box-shadow);
+      border-radius: var(--border-radius);
+      margin: 0.25rem 1.5rem 0.25rem;
+    }
 
-.top-bar button.active { background:#00aaff; color:white; }
+    .top-bar input,
+    .top-bar select,
+    .top-bar button {
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 6px;
+      border: 1px solid #e1e5e9;
+      font-size: 11px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
 
-#statusBox {
-    margin-left:auto; font-size:11px; background:#444; padding:2px 6px;
-    border-radius:4px; color:#fff; max-width:400px; overflow-x:auto; white-space:nowrap;
-}
+    .top-bar input:focus,
+    .top-bar select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.1);
+    }
 
-/* Backend / Frontend container */
-.container {
-    flex: 1; display: flex; flex-direction: row; gap:10px; padding:10px; overflow:hidden;
-}
+    .top-bar button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-#backendDiv, #frontendDiv {
-    flex: 1; background:#fff; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1);
-    overflow:auto; padding:10px;
-}
+    .top-bar button.active {
+      background: var(--accent-color);
+      color: white;
+    }
 
-h3 { margin-top:0; color:#00aaff; font-size:16px; }
+    .top-bar button:hover:not(.active) {
+      background: #5a7bff;
+    }
 
-table { border-collapse:collapse; width:100%; margin:6px 0; font-size:13px; }
-table, th, td { border:1px solid #aaa; }
-th { background:#00aaff; color:white; padding:6px; text-align:left; }
-td { padding:5px; }
+    #statusBox {
+      margin-left: auto;
+      font-size: 10px;
+      background: var(--secondary-color);
+      padding: 3px 8px;
+      border-radius: 16px;
+      color: var(--text-secondary);
+      max-width: 300px;
+      overflow-x: auto;
+      white-space: nowrap;
+      border: 1px solid #e1e5e9;
+    }
 
-@media (max-width:900px){
-    .container { flex-direction: column; }
-    #backendDiv, #frontendDiv { flex: none; height: 50%; }
-    .top-bar input, .top-bar select, .top-bar button { font-size:11px; height:28px; }
-    h3 { font-size:14px; }
-}
-</style>
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 0.25rem 1.5rem;
+      max-width: 100%;
+      margin: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Container */
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      padding: 0;
+      overflow: hidden;
+      margin-top: 0.25rem;
+      height: calc(100% - 40px);
+    }
+
+    #backendDiv,
+    #frontendDiv {
+      flex: 1;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      padding: 0;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e1e5e9;
+    }
+
+    .content-wrapper {
+      flex: 1;
+      overflow: auto;
+      padding: 0.5rem;
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 2px solid var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      background: #f8f9ff;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      margin: 0.5rem 0;
+      font-size: 0.85rem;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th {
+      background: var(--gradient-primary);
+      color: white;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 0.6rem;
+      border-bottom: 1px solid #f1f3f5;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9ff;
+    }
+
+    tr:hover {
+      background-color: #e9ecef;
+    }
+
+    /* Loading Spinner */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(74, 107, 255, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .loading-text {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Error Message */
+    .error-message {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-secondary);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .error-message i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--accent-color);
+      opacity: 0.8;
+    }
+
+    .error-message p {
+      font-size: 1rem;
+      max-width: 280px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+      }
+
+      #backendDiv,
+      #frontendDiv {
+        flex: none;
+        height: 50vh;
+        margin-bottom: 0.5rem;
+      }
+
+      .top-bar input,
+      .top-bar select,
+      .top-bar button {
+        font-size: 11px;
+        height: 28px;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 4px;
+      }
+
+      .top-bar input,
+      .top-bar select,
+      .top-bar button {
+        width: 100%;
+        margin-bottom: 2px;
+      }
+
+      .main-content {
+        padding: 0.25rem;
+      }
+    }
+
+    /* Enhanced UI Elements */
+    .component-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .component-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .component-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 107, 255, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--secondary-color);
+      color: var(--text-color);
+      border: 1px solid #e1e5e9;
+    }
+
+    .btn-secondary:hover {
+      background: #e9ecef;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-label {
+      display: none;
+    }
+
+    .default-value {
+      display: none;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f3f5;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.75rem;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Modified styles for removing default messages */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Remove title from backend/frontend divs */
+    #backendDiv,
+    #frontendDiv {
+      padding-top: 0;
+    }
+
+    #backendDiv h3,
+    #frontendDiv h3 {
+      display: none;
+    }
+
+    /* Adjust content wrapper to take full height */
+    .content-wrapper {
+      flex: 1;
+      overflow: auto;
+      padding: 0.5rem;
+      height: 100%;
+    }
+
+    /* Eshan text */
+    .eshan-text {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      z-index: 1000;
+      font-weight: 500;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="top-bar">
+    <button id="btnStock" class="active" onclick="setMode('stock')">
+      <i class="fas fa-building"></i> Stock
+    </button>
+    <button id="btnIndex" onclick="setMode('index')">
+      <i class="fas fa-chart-pie"></i> Index
+    </button>
 
-<div class="top-bar">
-    <button id="btnStock" class="active" onclick="setMode('stock')">Stock</button>
-    <button id="btnIndex" onclick="setMode('index')">Index</button>
+    <div class="input-group">
+      <input id="symbolInput" type="text" value="ITC" style="width:80px;">
+    </div>
 
-    <input id="symbolInput" type="text" value="ITC" style="width:90px;">
-    <select id="reqType" style="width:130px"></select>
-    <input id="dateInput" type="date" style="width:120px;">
-    <button id="fetchBtn" onclick="fetchNow()" style="background:#2196f3;color:white;">Fetch</button>
+    <div class="input-group">
+      <select id="reqType" style="width:120px"></select>
+    </div>
 
-    <button id="btnBackend" class="active" onclick="setSide('backend')">Backend</button>
-    <button id="btnFrontend" onclick="setSide('frontend')">Frontend</button>
+    <div class="input-group">
+      <input id="dateInput" type="date" style="width:110px;">
+    </div>
+
+    <button id="fetchBtn" onclick="fetchNow()" class="btn btn-primary">
+      <i class="fas fa-download"></i> Fetch Data
+    </button>
+
+    <button id="btnBackend" class="active" onclick="setSide('backend')">
+      <i class="fas fa-server"></i> Backend
+    </button>
+    <button id="btnFrontend" onclick="setSide('frontend')">
+      <i class="fas fa-table"></i> Frontend
+    </button>
 
     <div id="statusBox">No fetch yet</div>
-</div>
+  </div>
 
-<div class="container">
-    <div id="backendDiv"><h3>Backend Output</h3></div>
-    <div id="frontendDiv"><h3>Frontend Extracted Tables</h3><p>No tables yet.</p></div>
-</div>
+  <main class="main-content">
+    <div class="container">
+      <div id="backendDiv" class="component">
+        <div id="backendContent" class="content-wrapper">
+          <div class="error-message">
+            <i class="fas fa-info-circle"></i>
+            <p>No backend content available. Please fetch data.</p>
+          </div>
+        </div>
+      </div>
 
-<script type="module">
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+      <div id="frontendDiv" class="component">
+        <div id="frontendContent" class="content-wrapper">
+          <div class="error-message">
+            <i class="fas fa-info-circle"></i>
+            <p>No tables found. Please fetch data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-let currentMode = "stock";
-let currentSide = "backend";
-let appClient = null;
+  <div class="eshan-text">eshan</div>
 
-const reqOptions = {
-    stock: [ "info", "intraday", "daily","nse_eq", "qresult", "result", "balance",
-        "cashflow", "dividend", "split", "other","stock_hist"],
-    index: [ "indices", "nse_open", "nse_preopen", "nse_fno","nse_fiidii","nse_events",
-        "nse_future", "nse_bhav", "nse_highlow","index_history","nse_largedeals",
-        "nse_most_active","largedeals_historical","nse_bulkdeals",
-        "nse_blockdeals","index_pe_pb_div","index_total_returns"]
-};
+  <script type="module">
+    import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-// ---------------- DEFAULT DATE ----------------
-function setDefaultDate(){
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    document.getElementById("dateInput").value = d.toISOString().split("T")[0];
-}
-setDefaultDate();
+        // State management (React-like)
+        const state = {
+            currentMode: "stock",
+            currentSide: "backend",
+            appClient: null,
+            loading: false,
+            status: "No fetch yet",
+            symbol: "ITC",
+            date: "",
+            backendContent: [],
+            tables: [],
+            requestOptions: {
+                stock: [
+                    "info", "intraday", "daily", "nse_eq", "qresult", "result", "balance",
+                    "cashflow", "dividend", "split", "other", "stock_hist"
+                ],
+                index: [
+                    "indices", "nse_open", "nse_preopen", "nse_fno", "nse_fiidii", "nse_events",
+                    "nse_future", "nse_bhav", "nse_highlow", "index_history", "nse_largedeals",
+                    "nse_most_active", "largedeals_historical", "nse_bulkdeals",
+                    "nse_blockdeals", "index_pe_pb_div", "index_total_returns"
+                ]
+            },
+            reqType: ""
+        };
 
-// ---------------- POPULATE DROPDOWN ----------------
-function populateReqType(){
-    const dropdown = document.getElementById("reqType");
-    dropdown.innerHTML = reqOptions[currentMode].map(x=>`<option value="${x}">${x}</option>`).join('');
-}
-populateReqType();
-
-// ---------------- CONNECT HF CLIENT ----------------
-async function connectClient(){
-    if(appClient) return appClient;
-    try {
-        appClient = await Client.connect("eshan6704/backend");
-        return appClient;
-    } catch(e){ appClient=null; return null; }
-}
-
-// ---------------- UPDATE STATUS ----------------
-function updateStatus(status, sizeKB=0){
-    const name = document.getElementById("symbolInput").value;
-    const req_type = document.getElementById("reqType").value;
-    const mode = currentMode;
-    const dateVal = document.getElementById("dateInput").value.split("-").reverse().join("-");
-
-    const now = new Date();
-    const ts = now.toLocaleTimeString("en-GB", { hour12:false });
-    const sizeInfo = sizeKB > 0 ? ` | ${sizeKB} KB` : "";
-
-    document.getElementById("statusBox").innerText = 
-        `${mode},${req_type},${name},${dateVal} | Last fetch: ${ts} | ${status}${sizeInfo}`;
-}
-
-// ---------------- FETCH ----------------
-window.fetchNow = async function(){
-    const name = document.getElementById("symbolInput").value;
-    const req_type = document.getElementById("reqType").value;
-    const rawDate = document.getElementById("dateInput").value;
-    const date = rawDate.split("-").reverse().join("-");
-
-    const backendDiv = document.getElementById("backendDiv");
-    const frontendDiv = document.getElementById("frontendDiv");
-    backendDiv.innerHTML = "<h3>Backend Output</h3>";
-    frontendDiv.innerHTML = "<h3>Frontend Extracted Tables</h3>";
-
-    const client = await connectClient();
-    if(!client){ 
-        backendDiv.innerHTML += "<p style='color:red;'>Unable to connect to backend</p>"; 
-        updateStatus("Error", 0);
-        return; 
-    }
-
-    let result;
-    try {
-        result = await client.predict("/fetch_data",[currentMode, req_type, name, date]);
-        let sizeKB = 0;
-        if(result){
-            const str = JSON.stringify(result);
-            sizeKB = (new Blob([str]).size / 1024).toFixed(2);
+        // Initialize the app
+        function init() {
+            setDefaultDate();
+            populateReqType();
+            setMode("stock");
+            updateSideDisplay();
         }
-        updateStatus("Success", sizeKB);
-    } catch(err){
-        backendDiv.innerHTML += `<p style='color:red;'>Backend error: ${err.message}</p>`;
-        updateStatus("Error", 0);
-        return;
-    }
 
-    const blocks = result.data || [];
-    const fragBackend = document.createDocumentFragment();
-    const fragTables = document.createDocumentFragment();
+        // Set default date (yesterday)
+        function setDefaultDate() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            state.date = d.toISOString().split("T")[0];
+            document.getElementById("dateInput").value = state.date;
+        }
 
-    blocks.forEach(block=>{
-        const div = document.createElement("div");
-        div.innerHTML = block;
-        fragBackend.appendChild(div);
-        fragBackend.appendChild(document.createElement("hr"));
+        // Populate request type dropdown
+        function populateReqType() {
+            const dropdown = document.getElementById("reqType");
+            dropdown.innerHTML = state.requestOptions[state.currentMode]
+                .map(x => `<option value="${x}">${x}</option>`)
+                .join('');
+            state.reqType = state.requestOptions[state.currentMode][0];
+        }
 
-        const temp = document.createElement("div");
-        temp.innerHTML = block;
-        temp.querySelectorAll("table").forEach(tbl=>{
-            fragTables.appendChild(tbl.cloneNode(true));
-            fragTables.appendChild(document.createElement("hr"));
-        });
-    });
+        // Connect to Hugging Face client
+        async function connectClient() {
+            if (state.appClient) return state.appClient;
+            try {
+                state.appClient = await Client.connect("eshan6704/backend");
+                return state.appClient;
+            } catch (e) {
+                state.appClient = null;
+                return null;
+            }
+        }
 
-    backendDiv.appendChild(fragBackend);
-    frontendDiv.appendChild(fragTables);
-    if(!frontendDiv.querySelector("table")) frontendDiv.innerHTML += "<p>No tables found.</p>";
-    updateSideDisplay();
-};
+        // Update status bar
+        function updateStatus(status, sizeKB = 0) {
+            const name = document.getElementById("symbolInput").value;
+            const req_type = document.getElementById("reqType").value;
+            const mode = state.currentMode;
+            const dateVal = document.getElementById("dateInput").value.split("-").reverse().join("-");
 
-// ---------------- MODE / VIEW ----------------
-window.setMode = function(mode){
-    currentMode = mode;
-    document.getElementById("btnStock").classList.toggle("active", mode==="stock");
-    document.getElementById("btnIndex").classList.toggle("active", mode==="index");
-    populateReqType();
-    document.getElementById("symbolInput").value = (mode==="index") ? "NIFTY 50" : "ITC";
-    document.getElementById("backendDiv").innerHTML="<h3>Backend Output</h3>";
-    document.getElementById("frontendDiv").innerHTML="<h3>Frontend Extracted Tables</h3><p>No tables yet.</p>";
-};
+            const now = new Date();
+            const ts = now.toLocaleTimeString("en-GB", { hour12: false });
+            const sizeInfo = sizeKB > 0 ? ` | ${sizeKB} KB` : "";
 
-window.setSide = function(side){
-    currentSide = side;
-    updateSideDisplay();
-};
-function updateSideDisplay(){
-    document.getElementById("btnBackend").classList.toggle("active", currentSide==="backend");
-    document.getElementById("btnFrontend").classList.toggle("active", currentSide==="frontend");
-    document.getElementById("backendDiv").style.display = (currentSide==="backend") ? "block" : "none";
-    document.getElementById("frontendDiv").style.display = (currentSide==="frontend") ? "block" : "none";
-}
+            state.status = `${mode},${req_type},${name},${dateVal} | Last fetch: ${ts} | ${status}${sizeInfo}`;
+            document.getElementById("statusBox").innerText = state.status;
+        }
 
-document.getElementById("symbolInput").addEventListener("keypress", e=>{ if(e.key==="Enter") fetchNow(); });
+        // Main fetch function
+        window.fetchNow = async function() {
+            state.loading = true;
+            renderLoadingState();
 
-setMode("stock"); 
-updateSideDisplay();
-</script>
+            const client = await connectClient();
+            if (!client) {
+                renderError("Unable to connect to backend");
+                updateStatus("Error", 0);
+                state.loading = false;
+                return;
+            }
 
+            try {
+                const result = await client.predict("/fetch_data", [
+                    state.currentMode,
+                    document.getElementById("reqType").value,
+                    document.getElementById("symbolInput").value,
+                    document.getElementById("dateInput").value.split("-").reverse().join("-")
+                ]);
+
+                let sizeKB = 0;
+                if (result) {
+                    const str = JSON.stringify(result);
+                    sizeKB = (new Blob([str]).size / 1024).toFixed(2);
+                }
+
+                updateStatus("Success", sizeKB);
+                renderData(result);
+            } catch (err) {
+                renderError(`Backend error: ${err.message}`);
+                updateStatus("Error", 0);
+            } finally {
+                state.loading = false;
+            }
+        };
+
+        // Render loading state
+        function renderLoadingState() {
+            document.getElementById("backendContent").innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Fetching data...</div>
+                </div>
+            `;
+            document.getElementById("frontendContent").innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Processing tables...</div>
+                </div>
+            `;
+        }
+
+        // Render error state
+        function renderError(message) {
+            document.getElementById("backendContent").innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.getElementById("frontendContent").innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>No tables available due to error</p>
+                </div>
+            `;
+        }
+
+        // Render fetched data
+        function renderData(result) {
+            const blocks = result.data || [];
+            const backendContent = document.getElementById("backendContent");
+            const frontendContent = document.getElementById("frontendContent");
+
+            // Render backend content
+            backendContent.innerHTML = blocks.map(block => `
+                <div>${block}</div>
+                <hr>
+            `).join('');
+
+            // Extract and render tables
+            const tables = [];
+            blocks.forEach(block => {
+                const temp = document.createElement("div");
+                temp.innerHTML = block;
+                temp.querySelectorAll("table").forEach(tbl => {
+                    tables.push(tbl.outerHTML);
+                });
+            });
+
+            if (tables.length > 0) {
+                frontendContent.innerHTML = tables.map(table => `
+                    <div>${table}</div>
+                    <hr>
+                `).join('');
+            } else {
+                frontendContent.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No tables found in the response</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Set mode (stock/index)
+        window.setMode = function(mode) {
+            state.currentMode = mode;
+            document.getElementById("btnStock").classList.toggle("active", mode === "stock");
+            document.getElementById("btnIndex").classList.toggle("active", mode === "index");
+            populateReqType();
+
+            // Set appropriate default symbol based on mode
+            const symbol = mode === "index" ? "NIFTY 50" : "ITC";
+            document.getElementById("symbolInput").value = symbol;
+
+            // Clear content
+            document.getElementById("backendContent").innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No backend content available. Please fetch data.</p>
+                </div>
+            `;
+            document.getElementById("frontendContent").innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No tables found. Please fetch data.</p>
+                </div>
+            `;
+
+            updateStatus("Mode changed", 0);
+        };
+
+        // Set view (backend/frontend)
+        window.setSide = function(side) {
+            state.currentSide = side;
+            updateSideDisplay();
+        };
+
+        // Update side display
+        function updateSideDisplay() {
+            document.getElementById("btnBackend").classList.toggle("active", state.currentSide === "backend");
+            document.getElementById("btnFrontend").classList.toggle("active", state.currentSide === "frontend");
+            document.getElementById("backendDiv").style.display = (state.currentSide === "backend") ? "flex" : "none";
+            document.getElementById("frontendDiv").style.display = (state.currentSide === "frontend") ? "flex" : "none";
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
+
 </html>
